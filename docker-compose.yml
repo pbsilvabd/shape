@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shape_python_app
+
+  postgres:
+    image: postgres:14
+    container_name: shape_postgres
+    environment:
+      POSTGRES_USER: shape
+      POSTGRES_PASSWORD: shape
+      POSTGRES_DB: shape
+      POSTGRES_PORT: "5432"
+    ports:
+      - "9438:5432"
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "shape"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+volumes:
+  postgres-db-volume:
+
